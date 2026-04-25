@@ -1,0 +1,18 @@
+# MCP settings contain API keys — do not commit
+.kiro/settings/
+
+# Node modules (for when we add the app)
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# OS files
+.DS_Store
+Thumbs.db
