@@ -8,6 +8,10 @@ The core problem: payments operations managers currently toggle between 3–4 di
 
 All payment data is realistically simulated for a fictional $3B credit union (Lakeside Community Credit Union) using industry-benchmark figures. Live market context (economic indicators, FX rates, industry news) is fetched from real public APIs. The application runs entirely client-side with no backend server.
 
+RailWatch is designed as an intelligence layer on top of a modern core banking platform such as Nymbus — it surfaces and contextualizes data that the core already holds, without replacing any core processing function. In a production environment, the Simulator module would be replaced by a DataProvider client connected to the Nymbus Connect API, with no changes required to any consuming dashboard component.
+
+IMPORTANT — DEMO VERSION NOTICE: This version of RailWatch operates entirely in Demo_Mode using simulated data. It has no authentication or authorization controls and MUST NOT be deployed in a production environment or used with real member financial data without implementing role-based access controls, audit logging, and appropriate security hardening.
+
 ---
 
 ## Glossary
@@ -23,7 +27,7 @@ All payment data is realistically simulated for a fictional $3B credit union (La
 - **Rail_Health_Status**: A categorical indicator of a payment rail's operational condition. Values: Healthy, Degraded, Critical.
 - **Exception**: A payment transaction that failed to process normally and requires manual review or intervention.
 - **Exception_Queue**: The collection of all open, unresolved exceptions across all rails.
-- **Reason_Code**: A standardized code identifying why a payment exception occurred (e.g., R01 Insufficient Funds, R02 Account Closed).
+- **Reason_Code**: A standardized code identifying why a payment exception occurred, qualified by its namespace. NACHA codes apply to ACH rails (e.g., R01 Insufficient Funds, R02 Account Closed). ISO 20022 codes apply to RTP and FedNow rails (e.g., AC01 IncorrectAccountNumber, AM04 InsufficientFunds). SWIFT codes apply to Wire_International rails (e.g., AC01, FOCR FraudOnCustomerRequest). The reasonCodeNamespace field on the Transaction record identifies which scheme applies.
 - **SLA_Threshold**: The maximum acceptable time an exception may remain open before escalation. Thresholds are rail-specific: FedNow, RTP, and ACH_Same_Day — 4 hours (warning) / 8 hours (breach); Wire_Domestic and Wire_International — 24 hours (warning) / 48 hours (breach); ACH_Standard — 48 hours (warning) / 72 hours (breach).
 - **Settlement_Position**: The current funded balance available to cover outgoing payment obligations for the business day.
 - **Projected_Daily_Obligation**: The estimated total outgoing payment volume expected to settle during the current business day.
@@ -37,8 +41,9 @@ All payment data is realistically simulated for a fictional $3B credit union (La
 - **Stale_Data_Indicator**: A visual label shown when cached API data is older than the defined freshness threshold.
 - **Daily_Summary**: A plain-text export of the current dashboard state, formatted for use in a morning standup or leadership email.
 - **Simulator**: The client-side module responsible for generating all simulated payment data in Demo_Mode.
+- **DataProvider**: The interface implemented by both the Simulator (in Demo_Mode) and any live core banking integration (in production). All dashboard components consume data exclusively through the DataProvider interface, enabling the Simulator to be replaced by a Nymbus Connect API client without modifying any consuming component.
 - **LocalStorage**: The browser's built-in key-value storage used to persist user preferences and last-refresh timestamps.
-- **Transaction**: A single payment record with fields: transactionId (UUID), rail (Payment_Rail), amount (USD decimal), destinationCurrency (ISO 4217 code, required for Wire_International), status (pending/completed/failed/returned), reasonCode (Reason_Code or null), createdAt (ISO 8601 timestamp), openedAt (ISO 8601 timestamp for exceptions).
+- **Transaction**: A single payment record conforming to ISO 20022 message conventions, with fields: transactionId (UUID), endToEndId (string — unique end-to-end payment chain identifier per ISO 20022 pacs.008), rail (Payment_Rail), amount (USD decimal), instructedAmount (decimal — original instructed amount before any FX conversion), destinationCurrency (ISO 4217 code, required for Wire_International), status (pending/completed/failed/returned), reasonCode (string — the reason code value), reasonCodeNamespace (enum: NACHA | ISO20022 | SWIFT — identifies the coding scheme), createdAt (ISO 8601 timestamp), openedAt (ISO 8601 timestamp for exceptions), settlementDate (ISO 8601 date — the date on which the transaction is expected to or did settle). In Demo_Mode, endToEndId and settlementDate are populated with realistic placeholder values.
 - **Destination_Currency**: The ISO 4217 currency code of the beneficiary account for Wire_International transactions (e.g., EUR, GBP, CAD, MXN, JPY, CNY).
 - **Cut_Off_Time**: The deadline by which a payment must be submitted to settle on the current business day for a given rail.
 - **Dollar_Exposure**: The total USD value of all open exceptions for a given rail or reason code grouping.
@@ -66,6 +71,8 @@ All payment data is realistically simulated for a fictional $3B credit union (La
 8. THE Dashboard SHALL display a "Last generated" timestamp for the simulated payment data, showing when the current simulation dataset was created.
 9. THE Dashboard SHALL provide a manual "Refresh Data" button that, WHEN clicked, re-runs THE Simulator to generate a fresh dataset and updates all simulated data sections. THE refresh SHALL complete within 300 milliseconds.
 10. WHEN a manual refresh is in progress, THE Dashboard SHALL display a loading indicator on the "Refresh Data" button and SHALL NOT allow duplicate refresh requests.
+11. THE Dashboard SHALL include a production deployment notice in its README documentation stating: "RailWatch Demo operates without authentication or authorization controls. It MUST NOT be connected to real member financial data or deployed in a production environment without implementing role-based access controls, audit logging, and appropriate security hardening per NCUA and applicable regulatory requirements."
+12. THE Simulator SHALL implement a DataProvider interface such that all dashboard components consume payment data exclusively through that interface. THE DataProvider interface SHALL define the data contracts for: rail volume and health data, exception queue data, settlement position data, and historical volume data. This ensures that replacing the Simulator with a live Nymbus Connect API client requires no changes to any consuming dashboard component.
 
 ---
 
@@ -82,6 +89,7 @@ All payment data is realistically simulated for a fictional $3B credit union (La
 5. THE Status Bar SHALL update in real time as underlying data changes (countdown ticking, status changes) without requiring a page reload.
 6. THE Dashboard SHALL define a global alert severity hierarchy applied consistently across all alert types: CRITICAL (Funding_Coverage_Ratio < 100%, SLA breach active, rail status Critical) → WARNING (Funding_Coverage_Ratio 100–110%, cut-off within 2 hours, queue growth > 25%, rail status Degraded) → INFO (volume anomaly, cut-off within 2 hours but > 30 minutes). Higher severity alerts SHALL always be visually distinguished from lower severity alerts.
 7. THE Status Bar SHALL have a maximum height of 48px and SHALL NOT push other dashboard content below the fold on a 1080p display at 1280px viewport width.
+8. THE Status Bar SHALL display an inline "Simulated Data" label adjacent to the Funding_Coverage_Ratio signal, ensuring that any screenshot of the Status Bar in isolation clearly identifies the data as simulated.
 
 ---
 
@@ -111,6 +119,7 @@ All payment data is realistically simulated for a fictional $3B credit union (La
 4. WHEN an exception group is expanded, THE Dashboard SHALL NOT navigate away from the dashboard or open a new page.
 5. IF an exception group contains more than 10 individual transactions, THE Dashboard SHALL display the first 10 sorted by Dollar_Exposure descending and display a count of remaining items.
 6. FOR ALL expanded exception groups, the sum of individual transaction amounts displayed SHALL equal the Dollar_Exposure shown for that group (drill-down consistency invariant).
+7. THE expanded exception detail SHALL include a visible "Demo Data" label on each Transaction record. In a production implementation, the following controls would be required: (a) transaction IDs must be masked or tokenized for display; (b) access to the drill-down view must be gated by role-based permissions; (c) all drill-down access must be audit-logged per BSA/AML, Reg E, and Reg J requirements. These production controls are out of scope for the Demo_Mode implementation but SHALL be documented in the README.
 
 ---
 
@@ -130,6 +139,7 @@ All payment data is realistically simulated for a fictional $3B credit union (La
 8. WHEN current-day volume for a Payment_Rail is more than 20% below the 7-day rolling average, THE Dashboard SHALL display a volume anomaly indicator for that rail.
 9. FOR ALL Payment_Rails, the sum of successful transactions and failed transactions SHALL equal the total transaction count for that rail (completeness invariant).
 10. WHEN a user views the Rail Health Overview, THE Dashboard SHALL render all six rail status cards within 100 milliseconds of data being available.
+11. In Demo_Mode, Rail_Health_Status reflects institution-side payment processing failure rates only, as generated by the Simulator. In a production integration, Rail_Health_Status would be supplemented by network-side availability feeds from the Federal Reserve (for FedNow) and The Clearing House (for RTP), which are separate data sources from the core banking system. This distinction SHALL be documented in the README.
 
 ---
 
@@ -159,6 +169,7 @@ All payment data is realistically simulated for a fictional $3B credit union (La
 18. THE Dashboard SHALL display the Dollar_Exposure for each Reason_Code grouping alongside the exception count.
 19. THE Dashboard SHALL rank exception groups by SLA urgency ascending as the default sort order — exceptions closest to or past their SLA breach threshold appear first. Dollar_Exposure SHALL be available as a secondary sort option selectable by the user. FOR ALL sort operations, the displayed order SHALL be consistent with the selected sort criterion (sort consistency invariant).
 20. FOR ALL Dollar_Exposure calculations, the sum of individual transaction amounts for exceptions in a group SHALL equal the displayed Dollar_Exposure for that group (dollar exposure calculation invariant).
+21. THE Dashboard SHALL display the reasonCodeNamespace alongside each Reason_Code in the exception queue and drill-down view, so that users can distinguish between NACHA R-codes (ACH rails), ISO 20022 codes (RTP/FedNow rails), and SWIFT codes (Wire_International rail).
 
 ---
 
@@ -178,6 +189,8 @@ All payment data is realistically simulated for a fictional $3B credit union (La
 8. FOR ALL displayed Funding_Coverage_Ratio values, the ratio SHALL equal (Settlement_Position / Projected_Daily_Obligation) × 100, rounded to two decimal places (calculation correctness invariant).
 9. THE Dashboard SHALL display the intraday settlement timeline as a bar or area chart showing projected obligation drawdown from 8:00 AM ET to 6:00 PM ET in hourly intervals, with the current time marked. The timeline SHALL show cumulative obligations settled vs. remaining for the business day.
 10. IF the Projected_Daily_Obligation is zero or unavailable, THEN THE Dashboard SHALL display a data unavailable indicator for the Funding_Coverage_Ratio rather than a division-by-zero error.
+11. WHEN the Funding_Coverage_Ratio is below 110%, THE Dashboard SHALL display a non-dismissible "SIMULATED DATA" label directly adjacent to the ratio value and alert, ensuring that any screenshot of the settlement section in isolation clearly identifies the data as simulated and not suitable for regulatory reporting.
+12. In Demo_Mode, Settlement_Position is an aggregate scalar value across all rails. In a production integration, settlement position would be exposed as per-rail settlement account balances from the core banking system, reflecting the actual funded accounts used for each payment rail. This distinction SHALL be documented in the README.
 
 ---
 
@@ -276,7 +289,7 @@ All payment data is realistically simulated for a fictional $3B credit union (La
 2. THE Daily_Summary SHALL include: the current date and time, overall rail health status for each Payment_Rail, total exception count and the top 3 aging exceptions by SLA status, current Settlement_Position and Funding_Coverage_Ratio, and any active Intraday_Liquidity_Alerts.
 3. WHEN live market data is available, THE Daily_Summary SHALL include the current Federal Funds Rate and the headline of the top-ranked news article. IF any Wire_International FX rates have been fetched and cached during the current session, THE Daily_Summary SHALL include up to two of those rates; otherwise the FX rate section SHALL be omitted from the summary without error.
 4. WHEN live market data is unavailable, THE Daily_Summary SHALL include a note indicating market data was unavailable at time of export, and SHALL still include all payment operations data.
-5. THE Daily_Summary SHALL include a footer identifying the data as Demo_Mode simulation data for Lakeside Community Credit Union.
+5. THE Daily_Summary SHALL begin with the following mandatory disclaimer as its FIRST line: "⚠ SIMULATED DATA — FOR DEMONSTRATION PURPOSES ONLY. NOT FOR USE IN REGULATORY REPORTING, BOARD PRESENTATIONS, OR ANY COMPLIANCE PURPOSE." THE Daily_Summary SHALL also end with this same disclaimer as its LAST line before any signature or footer.
 6. WHEN the user clicks the export action, THE Dashboard SHALL copy the Daily_Summary text to the system clipboard and display a confirmation message within 300 milliseconds.
 7. IF the Clipboard API is unavailable in the user's browser, THEN THE Dashboard SHALL display the Daily_Summary text in a modal dialog that the user can manually copy.
 8. FOR ALL Daily_Summary exports, the Funding_Coverage_Ratio value in the export SHALL match the value displayed on the Dashboard at the time of export (export consistency invariant).
@@ -320,6 +333,7 @@ All payment data is realistically simulated for a fictional $3B credit union (La
 11. WHEN the Simulator generates exception aging data, the distribution of exception ages SHALL include items in each aging bucket: under 24 hours, 24–48 hours, and over 48 hours.
 12. THE Simulator SHALL generate 7 days of historical daily volume data for each Payment_Rail at initialization, using the same volume ranges defined in criteria 15.1–15.6, seeded with a deterministic value derived from the current date so that the same date always produces the same historical baseline.
 13. THE Simulator SHALL generate prior-business-day data as the most recent entry in the 7-day history, using the business day immediately preceding the current date (skipping weekends and federal holidays). The prior-business-day dataset SHALL include a closing exception count per rail, used by Req 6.12 for queue growth comparison.
+14. Data generated by the Simulator SHALL NOT be used for regulatory reporting, board presentations, NCUA examination preparation, or any compliance purpose. THE Dashboard SHALL include this prohibition in the README and in the Daily_Summary export per Req 13.5.
 
 ---
 
