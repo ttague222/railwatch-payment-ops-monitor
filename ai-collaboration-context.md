@@ -80,6 +80,7 @@ Researched operational pain points in:
 | Reframed user from "member" to "bank/credit union" | The assignment asks to solve a real problem for a real user. The real user here is the institution, not the end consumer. |
 | Grounded research in Nymbus's actual customer base | Nymbus serves community banks and credit unions ($1B–$10B asset size). Solving for their pain points makes the submission directly relevant to the role. |
 | Created this context file before writing any spec | The assignment explicitly evaluates AI collaboration. Capturing thought process from the start, not retrofitting it at the end. |
+| Explicitly positioned RailWatch as a layer on top of a modern core, not a replacement | Nymbus sells core infrastructure. Building something that competes with their product would be a fundamental misread of the role. RailWatch is the intelligence and ops visibility layer that a modern core like Nymbus enables but doesn't itself provide. This positioning should appear in the README, the requirements Introduction, and the debrief. |
 
 ---
 
@@ -138,6 +139,11 @@ After generating the requirements for PayPath (Instant Payments Readiness Tracke
 
 A readiness assessment has no recurring value. A user fills it out once, gets a score, and is done. There's no reason to come back tomorrow. A real product solves a daily problem.
 
+- PayPath is a one-time assessment — a user completes it once and has no reason to return. It has no recurring utility.
+- The readiness tracker produces a score but doesn't connect to daily operations. It tells a payments leader where they stand but gives them nothing to act on tomorrow morning.
+- A sales tool helps Nymbus sell to prospects. A daily ops tool helps Nymbus retain customers by being embedded in their morning workflow. Retention value is higher than acquisition value.
+- The pivot to RailWatch was driven by one question: "Would a VP of Payments open this every day?" PayPath: no. RailWatch: yes.
+
 ### The real daily problem
 
 A credit union's payments operations team opens 3–4 different systems every morning to piece together what's happening across ACH, wire, and instant payment rails. There's no unified view. Exceptions pile up. Settlement positions are unclear. They're flying blind.
@@ -162,7 +168,7 @@ A credit union's payments operations team opens 3–4 different systems every mo
 
 | API | Role | Auth |
 |-----|------|------|
-| **FRED** (Federal Reserve Economic Data) | Live economic indicators — Fed Funds Rate, payment volume trends, inflation | Free API key |
+| **FRED** (Federal Reserve Economic Data) | Live Federal Funds Rate indicator — contextualizes intraday settlement cost and liquidity pressure for the ops manager. When rates are elevated, the cost of an uncovered settlement position is higher. This gives the single FRED indicator operational meaning at 8am, not just market decoration. | Free API key |
 | **Frankfurter** | Live FX rates — global payment velocity context | None required |
 | **Marketaux** | Live fintech/payments news with sentiment scoring | Free API key |
 
@@ -262,6 +268,18 @@ Added **Requirement 18: Edge Cases and Boundary Conditions** covering:
 
 ---
 
+## Phase 2 — What Would Be Built Next
+
+If RailWatch were a real product moving toward production, the following capabilities would be prioritized in order:
+
+1. **Live core connection** — Replace the Simulator with a read-only connection to a Nymbus Connect API endpoint. The Transaction schema is already structured to mirror Nymbus Connect conventions, making this a data source swap rather than a rebuild.
+2. **Alerting and push notifications** — The dashboard currently requires the ops manager to open it to see problems. Phase 2 adds proactive alerts: email or SMS when an exception breaches SLA, when Funding_Coverage_Ratio drops below a threshold, or when a rail status changes to Critical.
+3. **Multi-institution support** — Nymbus serves hundreds of community banks. A multi-tenant version of RailWatch would let a Nymbus client services team monitor payment health across their entire customer portfolio — turning a single-institution tool into a platform.
+4. **Historical trend analysis** — 7-day rolling averages are currently simulated. A real version would store and surface 30/60/90-day trend data, letting ops managers identify seasonal patterns and benchmark against prior periods.
+5. **Anomaly detection** — Volume drops, failure rate spikes, and settlement shortfalls currently trigger static threshold alerts. Phase 2 replaces static thresholds with ML-based anomaly detection that learns each institution's normal operating range.
+
+---
+
 ## Infrastructure Setup
 
 ### Git Repository
@@ -291,6 +309,18 @@ Added **Requirement 18: Edge Cases and Boundary Conditions** covering:
 | Application code | ⬜ Not started |
 | `README.md` | ⬜ Not started |
 | GitHub repo | ✅ Live at github.com/ttague222/railwatch-payment-ops-monitor |
+
+---
+
+## Open Questions for Design Phase
+
+These are known open questions being deliberately deferred to design.md. Capturing them here ensures they are not lost.
+
+1. **Correlated simulation sampling** — Req 15 requires that Settlement_Position and Projected_Daily_Obligation produce a Funding_Coverage_Ratio in the 85–140% range. How does the Simulator generate these two values as correlated rather than independent random draws? Design doc must specify the sampling strategy.
+2. **DST handling for cut-off times** — Req 17 requires cut-off time countdowns that handle Daylight Saving Time transitions correctly. Design doc must define whether cut-off times are stored in UTC or local time and how the countdown logic handles the 23-hour and 25-hour days at DST boundaries.
+3. **Marketaux rate limit persistence** — Req 10 adds a request counter to avoid exhausting the 100 req/month free tier. Design doc must specify where this counter is stored (likely LocalStorage), how it resets at month boundaries, and what happens when the counter reaches the limit mid-session.
+4. **Exception drill-down transaction generation** — Req 4 adds an inline transaction list per exception group. Design doc must define how many transactions are generated per exception group, what fields each transaction displays, and whether transactions are generated at load time or on demand when the user expands a group.
+5. **Daily Summary clipboard fallback** — Req 13 specifies a modal fallback when the Clipboard API is unavailable. Design doc must define the modal's behavior — specifically whether the text area is pre-selected for one-click copy and how the modal is dismissed.
 
 ---
 
