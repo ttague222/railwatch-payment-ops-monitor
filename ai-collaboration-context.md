@@ -178,13 +178,119 @@ Using 3 APIs (assignment requires minimum 2) shows initiative without overcompli
 
 ---
 
-## Next Steps
+## Requirements Iteration Log
 
-1. Create `requirements.md` for RailWatch
-2. Create `design.md` with API integration patterns and data flow
-3. Create `tasks.md` with incremental implementation steps
-4. Build the working application
-5. Write `README.md`
+### Round 1 — Initial Requirements Generated
+
+First pass of `requirements.md` created covering 12 requirements: dashboard initialization, rail health overview, exception queue monitor, settlement position tracker, FRED/Frankfurter/Marketaux API integrations, market context panel, daily summary export, performance, simulation integrity, and accessibility.
+
+### Round 2 — Five-Persona Review
+
+Requirements were reviewed simultaneously by five AI personas: QA Engineer, Software Engineer, Payment Operations Manager, Solutions Architect, and Product Manager.
+
+**Key findings that changed the spec:**
+
+| Finding | Source | Action Taken |
+|---------|--------|--------------|
+| Req 11.8/11.9 math contradiction — independent sampling can't guarantee ratio range | QA + Engineer | Fixed with correlated sampling strategy |
+| Marketaux free tier is 100 req/month — exhausted in ~50 days | Engineer | Added request counter + throttle in Req 7 |
+| ACH Same Day SLA threshold wrong — lumped with ACH Standard at 48h/72h | Ops Manager | Split to 4h/8h matching instant rail urgency |
+| Cut-off time countdowns completely absent | Ops Manager | Added as new Requirement 13 |
+| Dollar exposure missing from exception queue — count without value is useless | Ops Manager | Added Dollar_Exposure to Req 3 |
+| FRED/Frankfurter standalone panels are noise for daily ops | Ops Manager + PM | Scoped down: FRED → single Fed Rate indicator; Frankfurter → inline Wire_International conversion only |
+| Exception queue is read-only — no drill-down | PM | Added Exception Detail Drill-Down requirement |
+| No transaction data model defined | Architect | Added Transaction to Glossary with full schema |
+| LocalStorage synchronous writes conflict with 50ms main thread budget | Architect | Acknowledged as known constraint |
+| `limit=2` on FRED API returns oldest observations, not newest | Skeptic | Fixed to `limit=2&sort_order=desc` |
+| "Same time prior day" comparison requires intraday snapshots never defined | Skeptic | Simplified to prior-day closing count |
+| Two sequential 500ms budgets can't both be satisfied | Skeptic | Split: 300ms generation + 500ms total to render |
+| Req 9.3 referenced USD/EUR and USD/GBP with no guaranteed fetch source | Skeptic | Removed hardcoded FX pairs from Daily Summary |
+| Req 11.10 "48+ hours" breach threshold wrong for all rails | Skeptic | Fixed to per-rail breach thresholds with explicit injection |
+
+### Round 3 — UX Designer Review
+
+UX review identified structural and interaction gaps:
+
+**Changes applied:**
+- Added **Status Bar** (Req 2) — persistent top-of-page signal showing SLA breach count, coverage ratio, degraded rail count, next cut-off
+- Added **global alert severity hierarchy** — CRITICAL → WARNING → INFO, applied consistently across all alert types
+- Added **First-Run Experience** (Req 3) — lightweight overlay on first load explaining the five panels
+- Added **Exception Detail Drill-Down** (Req 4) — expandable inline transaction list per exception group
+- Added **Standard Error State Pattern** (Req 11) — single consistent component for all API failures
+- Fixed **exception queue default sort** — changed from Dollar_Exposure to SLA urgency ascending
+- Added **manual refresh button** and "Last generated" timestamp to simulated data
+- Specified **ACH Same Day window strip** — all three windows displayed simultaneously
+- Added **Demo Mode banner height constraint** — max 48px, must not push content below fold
+
+### Round 4 — Happy/Unhappy Path Gap Analysis
+
+Added **Requirement 18: Edge Cases and Boundary Conditions** covering:
+- Happy path: all systems normal state
+- Simulation failures: JS exception handling, consistency invariant violation
+- All APIs down: with and without cached data
+- Partial API availability: FRED down only, Marketaux down with degraded rail
+- LocalStorage: full/unavailable, schema version mismatch
+- Cut-off time edge cases: exactly at cut-off, DST transition
+- Exception queue: zero-volume rail, unsupported destination currency
+- Settlement: exact boundary values at 100.00% and 110.00%
+- Daily Summary: confirmation timer behavior, duplicate click handling
+
+### Final Requirements Structure
+
+18 requirements, sequentially numbered:
+
+| # | Requirement | Key Additions vs. Initial |
+|---|-------------|--------------------------|
+| 1 | Dashboard Initialization & Demo Mode | Manual refresh, last-generated timestamp |
+| 2 | Dashboard Status Bar | NEW — global alert hierarchy, 48px constraint |
+| 3 | First-Run Experience | NEW — LocalStorage dismissal, demo explanation |
+| 4 | Exception Detail Drill-Down | NEW — inline transaction list, drill-down invariant |
+| 5 | Payment Rail Health Overview | Boundary conditions on failure rate thresholds |
+| 6 | Exception Queue Monitor | Dollar_Exposure, SLA urgency sort, ACH Same Day split |
+| 7 | Settlement Position Tracker | Boundary conditions at 100% and 110% |
+| 8 | Economic Context Indicator (FRED) | Scoped to single Fed Rate indicator, sort_order=desc fix |
+| 9 | Wire International FX Conversion (Frankfurter) | On-demand only, no standalone panel |
+| 10 | Marketaux News Integration | Rate limit counter, sentiment thresholds defined |
+| 11 | Standard Error State Pattern | NEW — consistent error component spec |
+| 12 | Market Context Panel Aggregate Behavior | Updated for scoped-down API roles |
+| 13 | Daily Summary Export | FX rates conditional on session cache |
+| 14 | Performance & Responsiveness | HTTPS requirement, Page_Load_Start defined |
+| 15 | Data Simulation Integrity | Correlated sampling, 7-day history, explicit breach injection |
+| 16 | Accessibility & Usability | Unchanged |
+| 17 | Payment Cut-Off Time Monitor | NEW — ACH Same Day window strip, DST handling |
+| 18 | Edge Cases & Boundary Conditions | NEW — 18 happy/unhappy path scenarios |
+
+---
+
+## Infrastructure Setup
+
+### Git Repository
+- Initialized locally with initial commit
+- `.gitignore` added to exclude `.kiro/settings/` (contains API keys)
+- Pushed to GitHub: https://github.com/ttague222/railwatch-payment-ops-monitor
+
+### GitHub MCP
+- Configured at `.kiro/settings/mcp.json` (excluded from git)
+- Connection verified
+
+### Data Strategy
+- All payment data: simulated client-side using NACHA/ISO 20022 conventions
+- Simulation calibrated to Federal Reserve published payment volume statistics
+- Seed data structured to mirror what a Nymbus Connect API response would return
+- README will document: "schema mirrors Nymbus Connect conventions — straightforward to connect to live core when ready"
+
+---
+
+## Current Status
+
+| Artifact | Status |
+|----------|--------|
+| `requirements.md` | ✅ Complete — 18 requirements, 4 review rounds |
+| `design.md` | ⬜ Not started |
+| `tasks.md` | ⬜ Not started |
+| Application code | ⬜ Not started |
+| `README.md` | ⬜ Not started |
+| GitHub repo | ✅ Live at github.com/ttague222/railwatch-payment-ops-monitor |
 
 ---
 
