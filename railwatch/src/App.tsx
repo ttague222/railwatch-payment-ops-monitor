@@ -8,6 +8,9 @@ import DemoModeBanner from './components/DemoModeBanner';
 import FirstRunOverlay from './components/FirstRunOverlay';
 import RailHealthOverview from './components/RailHealthOverview';
 import ExceptionQueueMonitor from './components/ExceptionQueueMonitor';
+import SettlementPositionTracker from './components/SettlementPositionTracker';
+import CutOffTimeMonitor from './components/CutOffTimeMonitor';
+import FredIndicator from './components/FredIndicator';
 
 function App() {
   const [provider, setProvider] = useState<DataProvider>(
@@ -26,18 +29,28 @@ function App() {
         <MarketauxContextProvider>
           <DemoModeBanner />
           {/* StatusBar placeholder — wired in task 28 */}
-          <div id="status-bar-placeholder" />
+          <div id="status-bar-placeholder" className="px-4 py-1 text-xs text-gray-400 bg-gray-50 border-b border-gray-200">
+            Last generated: {generatedAt.toLocaleTimeString()}
+            <button
+              onClick={refresh}
+              className="ml-4 px-2 py-0.5 rounded bg-blue-100 text-blue-700 hover:bg-blue-200 text-xs"
+            >
+              Refresh Data
+            </button>
+          </div>
           <FirstRunOverlay />
           <main className="p-4 space-y-6">
             <RailHealthOverview />
-            {/* ExceptionQueueMonitor — task 16 */}
             <ExceptionQueueMonitor />
-            {/* SettlementPositionTracker — task 19 */}
-            <section id="settlement-position-placeholder" />
-            {/* CutOffTimeMonitor — task 20 */}
-            <section id="cutoff-monitor-placeholder" />
-            {/* MarketContextPanel — task 26 */}
-            <section id="market-context-placeholder" />
+            <SettlementPositionTracker />
+            <CutOffTimeMonitor />
+            {/* Market Context — FredIndicator inline until MarketContextPanel (task 26) */}
+            <section className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+              <h2 className="text-lg font-bold text-gray-900 mb-3">Market Context</h2>
+              <FredIndicator />
+              {/* FxConversionInline renders inside ExceptionDrillDown for Wire_International */}
+              {/* MarketauxNewsFeed — task 25 */}
+            </section>
             {/* DailySummaryExport — task 27 */}
             <section id="daily-summary-placeholder" />
           </main>

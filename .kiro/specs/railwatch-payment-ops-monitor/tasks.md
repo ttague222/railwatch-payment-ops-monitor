@@ -204,7 +204,7 @@ Implement the RailWatch single-page React/TypeScript application in dependency o
   - Used by parent components while `fetchState === 'loading'`
   - _Requirements: Req 12.3_
 
-- [ ] 23. FredIndicator component — FRED API fetch, cache, error handling
+- [x] 23. FredIndicator component — FRED API fetch, cache, error handling
   - Create `src/api/fred.ts` — implements `readFredCache()`, `writeFredCache()`, `mapFredResponse()`, and `fetchFredRate()` with 5s `AbortController` timeout
   - Create `src/components/FredIndicator.tsx`
   - On mount: read `railwatch_fred_fedfunds` from LocalStorage; if fresh (< 4h) serve from cache; if stale (4–24h) serve from cache AND trigger background re-fetch; if absent or > 24h fetch immediately
@@ -215,7 +215,7 @@ Implement the RailWatch single-page React/TypeScript application in dependency o
   - Renders `FredSkeleton` while loading, `ErrorState` on error with no cache
   - _Requirements: Req 8.1–8.8, Req 11, Req 12.4_
 
-- [ ] 24. FxConversionInline component — Frankfurter on-demand fetch, session cache
+- [x] 24. FxConversionInline component — Frankfurter on-demand fetch, session cache
   - Create `src/api/frankfurter.ts` — implements `fxSessionCache` module-level Map, `readFxCache()`, `writeFxCache()`, `mapFrankfurterResponse()`, `fetchFxRate()` with 5s `AbortController` timeout
   - Create `src/components/FxConversionInline.tsx`
   - Props: `instructedAmount: number`, `destinationCurrency: string`, `fxLastFetch: number | undefined`, `onRetry: () => void`

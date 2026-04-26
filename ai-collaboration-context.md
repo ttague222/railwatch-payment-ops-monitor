@@ -336,7 +336,7 @@ The design document was built section by section with explicit approval gates be
 | `requirements.md` | ✅ Complete — 18 requirements, 6 review rounds (QA, Engineer, Ops Manager, Architect, PM, Skeptic, UX, CRO, Sales Engineer) |
 | `design.md` | ✅ Complete — 8 sections, approved |
 | `tasks.md` | ✅ Complete — 35 tasks (33 + tasks 1a and 25a), 3 risk tasks flagged (5, 9, 17) |
-| Application code | 🔄 In progress — Task 19 complete (see task log below) |
+| Application code | 🔄 In progress — Tasks 1–24 complete (see task log below) |
 | `README.md` | ⬜ Not started |
 | GitHub repo | ✅ Live at github.com/ttague222/railwatch-payment-ops-monitor |
 
@@ -368,23 +368,23 @@ The design document was built section by section with explicit approval gates be
 | 17 | [RISK] FxConversionInline state scope resolved | `src/components/ExceptionDrillDown.tsx` (scaffolded) |
 | 18 | ExceptionDrillDown component | `src/components/ExceptionDrillDown.tsx` |
 | 19 | SettlementPositionTracker + SettlementTimeline | `src/components/SettlementPositionTracker.tsx`, `src/components/SettlementTimeline.tsx` |
+| 20 | CutOffTimeMonitor + AchSameDayWindowStrip | `src/components/CutOffTimeMonitor.tsx`, `src/components/AchSameDayWindowStrip.tsx` |
+| 21 | ErrorState + ApiErrorBoundary | `src/components/ErrorState.tsx`, `src/components/ApiErrorBoundary.tsx` |
+| 22 | Loading skeleton components | `src/components/skeletons/FredSkeleton.tsx`, `FxSkeleton.tsx`, `NewsSkeleton.tsx` |
+| 23 | FredIndicator — FRED API fetch, 4h/24h cache, stale indicator, error handling | `src/api/fred.ts`, `src/components/FredIndicator.tsx` |
+| 24 | FxConversionInline — Frankfurter on-demand fetch, session cache, unsupported currency fallback | `src/api/frankfurter.ts`, `src/components/FxConversionInline.tsx` |
 
 ### Remaining Tasks
 
 | Task | Description |
 |------|-------------|
-| 20 | CutOffTimeMonitor + AchSameDayWindowStrip |
-| 21 | ErrorState + ApiErrorBoundary |
-| 22 | Loading skeleton components (Fred, Fx, News) |
-| 23 | FredIndicator — FRED API fetch, cache, error handling |
-| 24 | FxConversionInline — Frankfurter on-demand fetch |
-| 25a | [RISK] MarketauxContext |
-| 25 | MarketauxNewsFeed — fetch, monthly counter, rail surfacing |
-| 26 | MarketContextPanel — compose all three API sections |
-| 27 | DailySummaryExport |
-| 28 | StatusBar completion — wire all four signals |
-| 29 | Checkpoint — wire all components into App |
-| 30 | Performance pass — React.memo + Recharts animation |
+| 25a | [RISK] MarketauxContext — already complete (done in task 14/15 batch) |
+| 25 | MarketauxNewsFeed — fetch, monthly counter, sentiment labels, rail surfacing |
+| 26 | MarketContextPanel — compose FredIndicator + FxConversionInline + MarketauxNewsFeed |
+| 27 | DailySummaryExport — plain-text clipboard export |
+| 28 | StatusBar completion — wire all four signals via CutOffContext |
+| 29 | Checkpoint — full component wiring in App.tsx |
+| 30 | Performance pass — React.memo audit + Recharts animation check |
 | 31 | Accessibility pass |
 | 32 | Edge case verification — all 18 Req 18 scenarios |
 | 33 | Final checkpoint — full test suite + integration review |
@@ -431,13 +431,36 @@ Bugs discovered and fixed during implementation, in chronological order.
 
 ---
 
+**Bug 5 — Zero volumes and empty exception queue on weekends (discovered during task 24 verification)**
+
+- **Symptom:** Dashboard showed all rail volumes as 0 and "All clear — no open exceptions" when opened on a Saturday. Looked broken but was actually correct behavior per Req 1.4 (non-business-day state).
+- **Root cause:** Not a bug — the simulator correctly detects weekends and returns reduced/zero volumes. The issue was that this made it impossible to visually verify FRED and Frankfurter integrations during weekend development sessions.
+- **Fix:** Added a `forceBusinessDay` dev override in `engine.ts` gated on `import.meta.env.DEV`. This forces full business-day data generation during local development regardless of the calendar day. Must be removed before production deployment.
+- **Files changed:** `railwatch/src/simulator/engine.ts`
+
+---
+
+**Bug 6 — Completed components (tasks 20–23) not wired into App.tsx (discovered during task 24 verification)**
+
+- **Symptom:** `SettlementPositionTracker`, `CutOffTimeMonitor`, and `FredIndicator` were all fully implemented but not imported or rendered in `App.tsx`. The dashboard showed only Rail Health Overview and Exception Queue — all other sections were empty `<section>` placeholders.
+- **Root cause:** `App.tsx` was scaffolded in task 11 with placeholder `<section>` elements for components not yet built. As tasks 19–23 completed those components, `App.tsx` was never updated to import and render them.
+- **Fix:** Updated `App.tsx` to import and render `SettlementPositionTracker`, `CutOffTimeMonitor`, and `FredIndicator`. Added a temporary inline Market Context section wrapping `FredIndicator` until `MarketContextPanel` is built in task 26. Added a visible refresh button and last-generated timestamp to the status bar placeholder.
+- **Files changed:** `railwatch/src/App.tsx`
+
+---
+
 ### Implementation Notes
 
 - All three flagged risk tasks (5, 9, 17) are complete — downstream dependencies are unblocked
 - `SettlementPositionTracker` uses `React.memo` and correctly handles the 100.00% = CRITICAL / 110.00% = Adequate boundary conditions (Req 18.15, 18.16)
 - `SettlementTimeline` uses Recharts `ComposedChart` (Bar + Area) with `isAnimationActive={false}` on all series and a `ReferenceLine` at the current hour
+- `CutOffTimeMonitor` owns the single `setInterval` at 1000ms and writes to `CutOffContext` on each tick — `StatusBar` will read from context without owning a timer
+- `FredIndicator` uses a `useRef` guard (`fetchingRef`) to prevent duplicate in-flight fetches when background stale re-fetch and manual retry overlap
+- `FxConversionInline` uses `fxLastFetch` prop (a `Date.now()` timestamp bumped by the retry handler in `ExceptionDrillDown`) as a `useEffect` dependency to trigger re-fetch on retry without needing an imperative ref
+- `fxSessionCache` is a module-level `Map` — it persists for the browser session and is cleared on page reload, which is the correct behavior for FX rates (no stale rate risk across sessions)
 - No component below `App` imports from `src/simulator/` — DataProvider boundary is intact
 - All monetary values use `$X,XXX,XXX.XX` format; all percentages use `XX.XX%` format throughout
+- **Dev-mode override active:** `engine.ts` forces business-day data when `import.meta.env.DEV` is true — must be removed before final production build
 
 ---
 

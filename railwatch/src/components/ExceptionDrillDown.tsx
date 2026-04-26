@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import type { ExceptionGroup, Transaction, PaymentRail } from '../types';
+import FxConversionInline from './FxConversionInline';
 
 // ─── Prop Types ───────────────────────────────────────────────────────────────
 
@@ -86,19 +87,7 @@ function SlaBadge({ status }: { status: SlaStatus }) {
   );
 }
 
-// ─── FxConversionInline Placeholder ──────────────────────────────────────────
-// Wired to the real implementation in task 24.
 
-function FxConversionPlaceholder({
-  instructedAmount,
-  destinationCurrency,
-}: Pick<FxConversionInlineProps, 'instructedAmount' | 'destinationCurrency'>) {
-  return (
-    <span className="text-gray-400 italic text-xs">
-      {formatUSD(instructedAmount)} → {destinationCurrency} (FX pending)
-    </span>
-  );
-}
 
 // ─── Transaction Row ─────────────────────────────────────────────────────────
 
@@ -109,7 +98,7 @@ function TransactionRow({
 }: {
   tx: Transaction;
   fxLastFetch: Record<string, number>;
-  onRetryFx: (currency: string) => void;
+  onRetryFx: (transactionId: string) => void;
 }) {
   const slaStatus = getSlaStatus(tx.openedAt, tx.rail);
   const isWireIntl = tx.rail === 'Wire_International';
@@ -144,26 +133,12 @@ function TransactionRow({
           </span>
         )}
         {isWireIntl && tx.destinationCurrency && (
-          <FxConversionPlaceholder
+          <FxConversionInline
             instructedAmount={tx.instructedAmount}
             destinationCurrency={tx.destinationCurrency}
-            // fxLastFetch and onRetry are available here for wiring in task 24
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            {...(fxLastFetch[tx.destinationCurrency] !== undefined
-              ? { _fxLastFetch: fxLastFetch[tx.destinationCurrency] }
-              : {})}
+            fxLastFetch={fxLastFetch[tx.transactionId]}
+            onRetry={() => onRetryFx(tx.transactionId)}
           />
-        )}
-        {isWireIntl && tx.destinationCurrency && (
-          // Retry handler available for task 24 wiring
-          <button
-            type="button"
-            className="sr-only"
-            onClick={() => onRetryFx(tx.destinationCurrency!)}
-            aria-label={`Retry FX rate for ${tx.destinationCurrency}`}
-          >
-            Retry FX
-          </button>
         )}
       </div>
     </li>
@@ -175,22 +150,6 @@ function TransactionRow({
 function ExceptionDrillDown({ group }: ExceptionDrillDownProps) {
   // FX fetch state is scoped to ExceptionDrillDown to avoid stale closures across multiple drill-down instances
   const [fxLastFetch, setFxLastFetch] = useState<Record<string, number>>({});
-  const [retryFx, setRetryFx] = useState<Record<string, () => void>>({});
-
-  // Register a retry callback for a given currency code.
-  function registerRetryFx(currency: string, retryFn: () => void) {
-    setRetryFx(prev => ({ ...prev, [currency]: retryFn }));
-  }
-
-  // Record a successful FX fetch timestamp for a given currency code.
-  function recordFxFetch(currency: string) {
-    setFxLastFetch(prev => ({ ...prev, [currency]: Date.now() }));
-  }
-
-  // Expose for task 24 wiring — suppress unused warnings in the interim
-  void retryFx;
-  void registerRetryFx;
-  void recordFxFetch;
 
   // Sort transactions by dollar exposure (amount) descending, show first 10
   const sorted = useMemo(
@@ -201,9 +160,8 @@ function ExceptionDrillDown({ group }: ExceptionDrillDownProps) {
   const displayed = sorted.slice(0, 10);
   const remaining = sorted.length - displayed.length;
 
-  function handleRetryFx(currency: string) {
-    const fn = retryFx[currency];
-    if (fn) fn();
+  function handleRetryFx(transactionId: string) {
+    setFxLastFetch(prev => ({ ...prev, [transactionId]: Date.now() }));
   }
 
   return (

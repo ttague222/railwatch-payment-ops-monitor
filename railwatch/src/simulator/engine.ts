@@ -368,7 +368,11 @@ function generateNonBusinessDayData(config: SimulatorSeedConfig): SimulatorOutpu
 export function generate(config: SimulatorSeedConfig = DEFAULT_SEED_CONFIG): SimulatorOutput {
   const today = new Date();
 
-  if (!isBusinessDay(today)) {
+  // DEV OVERRIDE: force business-day data on weekends/holidays for testing.
+  // Remove this block before production deployment.
+  const forceBusinessDay = import.meta.env.DEV;
+
+  if (!isBusinessDay(today) && !forceBusinessDay) {
     return generateNonBusinessDayData(config);
   }
 
