@@ -93,7 +93,7 @@ Implement the RailWatch single-page React/TypeScript application in dependency o
   - Implement `getNextBusinessDay(from: Date): Date` per design.md Section 6.4
   - _Requirements: Req 17.1, Req 17.9_
 
-- [ ] 11. App shell — root component, DemoModeBanner, basic layout
+- [x] 11. App shell — root component, DemoModeBanner, basic layout
   - Create `src/components/DemoModeBanner.tsx` — persistent non-dismissible banner, max 48px height, text "DEMO MODE — Simulated Data"
   - Update `src/App.tsx` with `DataProviderContext.Provider` wrapping `SimulatorDataProvider` instance
   - Add `useState<DataProvider>` with lazy initializer `() => new SimulatorDataProvider()`
@@ -103,14 +103,14 @@ Implement the RailWatch single-page React/TypeScript application in dependency o
   - Render `DemoModeBanner`, `StatusBar` placeholder, `FirstRunOverlay` placeholder, and `<main>` with section placeholders
   - _Requirements: Req 1.2, Req 1.8, Req 1.9, Req 1.10, Req 2.1_
 
-- [ ] 12. Schema versioning module
+- [x] 12. Schema versioning module
   - Create `src/utils/schema.ts`
   - Export `CURRENT_SCHEMA_VERSION = '1.0.0'`
   - Implement `migrateIfNeeded(): void` — reads `railwatch_schema_version` from LocalStorage; if absent or mismatched, clears all `railwatch_*` keys and writes current version
   - Call `migrateIfNeeded()` at app startup (in `main.tsx` before React render)
   - _Requirements: Req 3.3, Req 18.10_
 
-- [ ] 13. FirstRunOverlay component
+- [x] 13. FirstRunOverlay component
   - Create `src/components/FirstRunOverlay.tsx`
   - On mount, check `railwatch_schema_version` in LocalStorage; show overlay if key is absent
   - Render overlay listing five dashboard sections: Status Bar, Rail Health Overview, Exception Queue, Settlement Position, Market Context
