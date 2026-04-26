@@ -18,14 +18,14 @@ export function MarketauxContextProvider({ children }: { children: ReactNode }) 
   );
 }
 
-/** Read the current article list (used by RailHealthCard). */
+/** Read the current article list (used by RailHealthCard for conditional headline surfacing). */
 export function useMarketauxArticles(): NewsArticle[] {
   const ctx = useContext(MarketauxContext);
   if (!ctx) throw new Error('useMarketauxArticles must be used within MarketauxContextProvider');
   return ctx.articles;
 }
 
-/** Write a new article list (used by MarketauxNewsFeed after fetch). */
+/** Write a new article list (used by MarketauxNewsFeed after a successful fetch). */
 export function useSetMarketauxArticles(): (articles: NewsArticle[]) => void {
   const ctx = useContext(MarketauxContext);
   if (!ctx) throw new Error('useSetMarketauxArticles must be used within MarketauxContextProvider');

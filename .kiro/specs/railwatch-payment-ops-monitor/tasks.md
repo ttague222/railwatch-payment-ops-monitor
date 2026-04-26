@@ -226,7 +226,7 @@ Implement the RailWatch single-page React/TypeScript application in dependency o
   - Wire into `ExceptionDrillDown` (task 18) for `Wire_International` transactions
   - _Requirements: Req 9.1–9.8, Req 18.14_
 
-- [ ] 25a. [RISK] Create MarketauxContext — required before MarketauxNewsFeed writes to it
+- [x] 25a. [RISK] Create MarketauxContext — required before MarketauxNewsFeed writes to it
   - Create `src/context/MarketauxContext.tsx` following the same pattern as CutOffContext (task 9)
   - Export `MarketauxContextProvider` component wrapping children with `useState<NewsArticle[]>([])`
   - Export `useMarketauxArticles(): NewsArticle[]` consumer hook
@@ -234,7 +234,7 @@ Implement the RailWatch single-page React/TypeScript application in dependency o
   - This context must exist before task 25 (MarketauxNewsFeed writes to it) and task 15 (RailHealthCard reads from it)
   - _Requirements: Req 10.10, Req 5.11_
 
-- [ ] 25. MarketauxNewsFeed component — fetch, monthly counter, conditional rail surfacing
+- [x] 25. MarketauxNewsFeed component — fetch, monthly counter, conditional rail surfacing
   - Create `src/api/marketaux.ts` — implements `getMarketauxCounterKey()`, `readMarketauxCount()`, `incrementMarketauxCount()`, `readMarketauxCache()`, `writeMarketauxCache()`, `mapMarketauxArticle()`, `fetchMarketauxNews()` with 5s `AbortController` timeout
   - Create `src/components/MarketauxNewsFeed.tsx`
   - State: `articles`, `fetchState`, `errorType`, `rateLimitReached`
