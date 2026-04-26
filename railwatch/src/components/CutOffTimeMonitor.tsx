@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { CutOffWindow, PaymentRail } from '../types';
-import { CUTOFF_SCHEDULE, secondsUntilCutOff, getNextBusinessDay } from '../utils/cutoff';
-import { isBusinessDay } from '../simulator/holidays';
+import { CUTOFF_SCHEDULE, secondsUntilCutOff, getNextBusinessDay, isBusinessDay } from '../utils/cutoff';
 import { useSetCutOffSummary } from '../context/CutOffContext';
 import AchSameDayWindowStrip from './AchSameDayWindowStrip';
 

@@ -277,7 +277,7 @@ Implement the RailWatch single-page React/TypeScript application in dependency o
   - Refresh button with loading indicator; blocks duplicate requests
   - _Requirements: Req 2.1–2.8, Req 1.9, Req 1.10_
 
-- [ ] 29. Checkpoint — wire all components into App, verify full render
+- [x] 29. Checkpoint — wire all components into App, verify full render
   - Import and render all components in `App.tsx` in correct tree order per design.md Section 1
   - Verify `DataProviderContext.Provider` wraps all dashboard components
   - Verify `CutOffContextProvider` wraps `CutOffTimeMonitor` and `StatusBar`
@@ -286,7 +286,7 @@ Implement the RailWatch single-page React/TypeScript application in dependency o
   - Ensure all tests pass, ask the user if questions arise.
   - _Requirements: Req 1.12, Req 18.3_
 
-- [ ] 30. Performance pass — React.memo and Recharts animation
+- [x] 30. Performance pass — React.memo and Recharts animation
   - Apply `React.memo` to all non-timer components not already memoized: `DemoModeBanner`, `RailHealthOverview`, `ExceptionQueueMonitor`, `SettlementPositionTracker`, `MarketContextPanel`, `DailySummaryExport`, `FredIndicator`, `MarketauxNewsFeed`, `ErrorState`
   - Confirm `CutOffTimeMonitor` is NOT memoized (it owns the timer and must re-render on tick)
   - Confirm `isAnimationActive={false}` on all Recharts `<Bar>`, `<Area>`, `<Line>` series in `SettlementTimeline`

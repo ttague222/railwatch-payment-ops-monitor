@@ -1,6 +1,9 @@
 import type { PaymentRail } from '../types';
 import { isBusinessDay } from '../simulator/holidays';
 
+// Re-export so components can import isBusinessDay without touching src/simulator/ directly
+export { isBusinessDay };
+
 // ─── Cut-Off Schedule ─────────────────────────────────────────────────────────
 
 export type CutOffScheduleEntry =

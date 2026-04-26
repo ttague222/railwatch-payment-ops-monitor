@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import type { ApiErrorType } from '../types/index';
 
 interface ErrorStateProps {
@@ -49,7 +49,7 @@ function formatTimestamp(iso: string): string {
  * Standard error display component used by all API sections.
  * Req 11.1–11.5
  */
-function ErrorState({
+const ErrorState = memo(function ErrorState({
   source,
   errorType,
   lastFetchedAt,
@@ -146,6 +146,6 @@ function ErrorState({
       )}
     </div>
   );
-}
+});
 
 export default ErrorState;
