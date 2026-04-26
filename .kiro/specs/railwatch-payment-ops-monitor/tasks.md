@@ -188,7 +188,7 @@ Implement the RailWatch single-page React/TypeScript application in dependency o
   - Apply `React.memo` to `AchSameDayWindowStrip`
   - _Requirements: Req 17.1–17.10, Req 18.11, Req 18.12_
 
-- [ ] 21. ErrorState component and ApiErrorBoundary
+- [x] 21. ErrorState component and ApiErrorBoundary
   - Create `src/components/ErrorState.tsx`
   - Props: `source: string`, `errorType: ApiErrorType | null`, `lastFetchedAt: string | null`, `cachedDataAvailable: boolean`, `onRetry: () => void`
   - Displays: error icon, plain-language message (no raw HTTP codes or stack traces), last-fetch timestamp if available, Retry button
@@ -196,7 +196,7 @@ Implement the RailWatch single-page React/TypeScript application in dependency o
   - Create `src/components/ApiErrorBoundary.tsx` — React error boundary wrapping each API section; renders `ErrorState` on caught error
   - _Requirements: Req 11.1–11.5, Req 12.2_
 
-- [ ] 22. Loading skeleton components — FredIndicator, FxConversionInline, Marketaux dimensions
+- [x] 22. Loading skeleton components — FredIndicator, FxConversionInline, Marketaux dimensions
   - Create `src/components/skeletons/FredSkeleton.tsx` — placeholder matching FredIndicator dimensions
   - Create `src/components/skeletons/FxSkeleton.tsx` — placeholder matching FxConversionInline dimensions
   - Create `src/components/skeletons/NewsSkeleton.tsx` — placeholder matching MarketauxNewsFeed dimensions
