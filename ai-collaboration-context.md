@@ -241,9 +241,35 @@ Added **Requirement 18: Edge Cases and Boundary Conditions** covering:
 - Settlement: exact boundary values at 100.00% and 110.00%
 - Daily Summary: confirmation timer behavior, duplicate click handling
 
+### Round 5 — CRO Review
+
+A Chief Revenue Officer persona reviewed the requirements with a focus on whether the product could be positioned as a Nymbus revenue driver, not just a demo artifact.
+
+**Key findings that changed the spec:**
+
+| Finding | Source | Action Taken |
+|---------|--------|--------------|
+| No mention of how RailWatch connects to Nymbus's sales motion | CRO | Added explicit DataProvider positioning language to Req 1.12 and the Introduction — "replacing the Simulator with a Nymbus Connect API client requires no changes to any consuming component" makes the upsell path concrete |
+| Daily Summary export has no branding or attribution | CRO | Confirmed the mandatory disclaimer (Req 13.5) serves dual purpose: compliance signal and implicit Nymbus attribution in any screenshot shared upward |
+| "Demo Mode" framing undersells the product | CRO | Kept Demo_Mode label (required for compliance) but ensured the README and Introduction frame RailWatch as production-ready architecture, not a prototype |
+| No multi-institution angle documented | CRO | Added multi-institution support as Phase 2 item #3 — positions RailWatch as a platform play for Nymbus's client services team |
+
+### Round 6 — Sales Engineer Review
+
+A Sales Engineer persona reviewed the requirements with a focus on whether a Nymbus SE could demo this product to a prospect in a 30-minute discovery call.
+
+**Key findings that changed the spec:**
+
+| Finding | Source | Action Taken |
+|---------|--------|--------------|
+| No "wow moment" in the first 10 seconds | Sales Engineer | Confirmed Status Bar (Req 2) as the immediate hook — SLA breach count and coverage ratio are visible before any scrolling |
+| Exception drill-down is the most compelling live demo feature | Sales Engineer | Ensured Req 4 drill-down includes Dollar_Exposure, SLA status, and reason code namespace — the three things a prospect's ops manager would immediately recognize as their daily pain |
+| SIMULATED DATA labels could undermine credibility in a demo | Sales Engineer | Confirmed labels are required (Req 7.11, Req 2.8) but scoped to specific signals — the overall dashboard reads as real ops data, not a toy |
+| No clear "this is what it looks like connected to your core" narrative | Sales Engineer | Added explicit Nymbus Connect positioning to Req 1.12 and README — the DataProvider interface makes the live integration story concrete and credible |
+
 ### Final Requirements Structure
 
-18 requirements, sequentially numbered:
+18 requirements across 6 review rounds, sequentially numbered:
 
 | # | Requirement | Key Additions vs. Initial |
 |---|-------------|--------------------------|
@@ -378,7 +404,7 @@ The design document was built section by section with explicit approval gates be
 
 | Artifact | Status |
 |----------|--------|
-| `requirements.md` | ✅ Complete — 18 requirements, 6 review rounds (QA, Engineer, Ops Manager, Architect, PM, Skeptic, UX, CRO, Sales Engineer) |
+| `requirements.md` | ✅ Complete — 18 requirements, 6 review rounds (Round 2: QA, Engineer, Ops Manager, Architect, PM, Skeptic; Round 3: UX Designer; Round 4: Happy/Unhappy Path; Round 5: CRO; Round 6: Sales Engineer) |
 | `design.md` | ✅ Complete — 8 sections, approved |
 | `tasks.md` | ✅ Complete — all 35 tasks complete (33 + tasks 1a and 25a) |
 | Application code | ✅ Complete — all tasks 1–33 implemented and verified |
