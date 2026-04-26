@@ -2,21 +2,7 @@ import { memo } from 'react';
 import type { PaymentRail } from '../types';
 import { useDataProvider } from '../context/DataProviderContext';
 import SettlementTimeline from './SettlementTimeline';
-
-// ─── Formatters ───────────────────────────────────────────────────────────────
-
-function formatUSD(n: number): string {
-  return n.toLocaleString('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-}
-
-function formatPct(n: number): string {
-  return n.toFixed(2) + '%';
-}
+import { formatUSD, formatPercent } from '../utils/format';
 
 // ─── Rail breakdown styles ────────────────────────────────────────────────────
 
@@ -123,7 +109,7 @@ const SettlementPositionTracker = memo(function SettlementPositionTracker() {
                   : 'text-green-700'
               }`}
             >
-              {formatPct(displayRatio)}
+              {formatPercent(displayRatio)}
               <span className="ml-2 text-xs font-medium">
                 {alertLevel === 'CRITICAL' ? '(CRITICAL)' : alertLevel === 'WARNING' ? '(WARNING)' : '(Adequate)'}
               </span>

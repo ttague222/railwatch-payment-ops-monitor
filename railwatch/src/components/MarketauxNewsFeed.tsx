@@ -11,6 +11,7 @@ import {
 import { useSetMarketauxArticles } from '../context/MarketauxContext';
 import NewsSkeleton from './skeletons/NewsSkeleton';
 import ErrorState from './ErrorState';
+import { formatLocalTimestamp } from '../utils/format';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -22,12 +23,7 @@ const SENTIMENT_STYLES = {
 
 function formatPublishedAt(iso: string): string {
   try {
-    return new Date(iso).toLocaleString(undefined, {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+    return formatLocalTimestamp(iso);
   } catch {
     return iso;
   }

@@ -293,7 +293,7 @@ Implement the RailWatch single-page React/TypeScript application in dependency o
   - Verify `setInterval` in `CutOffTimeMonitor` does not cause re-renders in sibling components (CutOffContext isolates updates)
   - _Requirements: Req 14.1, Req 14.5, Req 17.8_
 
-- [ ] 31. Accessibility pass — keyboard navigation, color+label indicators, formatting
+- [x] 31. Accessibility pass — keyboard navigation, color+label indicators, formatting
   - Verify all interactive elements reachable via Tab in logical order: export button, retry buttons, panel toggles, sort toggle, exception group rows
   - Verify all status indicators use both color and text/icon (no color-only signals): Rail_Health_Status badges, SLA breach badges, Intraday_Liquidity_Alert labels, cut-off countdown states
   - Verify all monetary values formatted as $X,XXX,XXX.XX (comma-separated thousands, 2dp)

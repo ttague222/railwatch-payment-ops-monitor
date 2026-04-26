@@ -2,6 +2,7 @@ import { memo, useState, useCallback, useMemo } from 'react';
 import type { PaymentRail } from '../types';
 import { useDataProvider } from '../context/DataProviderContext';
 import { useCutOffSummary } from '../context/CutOffContext';
+import { formatPercent } from '../utils/format';
 
 // ─── SLA breach detection (mirrors ExceptionQueueMonitor logic) ───────────────
 
@@ -86,7 +87,7 @@ const StatusBar = memo(function StatusBar({ generatedAt, onRefresh }: StatusBarP
   }, [refreshing, onRefresh]);
 
   // ── Coverage ratio display helpers ────────────────────────────────────────
-  const ratioLabel = `${fundingCoverageRatio.toFixed(2)}%`;
+  const ratioLabel = `${formatPercent(fundingCoverageRatio)}`;
   const ratioCritical = fundingCoverageRatio < 100;
   const ratioWarning = fundingCoverageRatio >= 100 && fundingCoverageRatio < 110;
 
@@ -188,7 +189,10 @@ const StatusBar = memo(function StatusBar({ generatedAt, onRefresh }: StatusBarP
       {/* Right: generated-at timestamp + refresh button */}
       <div className="flex items-center gap-3 text-xs shrink-0 ml-4">
         <span className="text-gray-400 hidden sm:inline">
-          Generated {generatedAt.toLocaleTimeString()}
+          Generated {generatedAt.toLocaleString(undefined, {
+            year: 'numeric', month: 'short', day: 'numeric',
+            hour: '2-digit', minute: '2-digit', second: '2-digit',
+          })}
         </span>
 
         {/* Refresh button (Req 1.9, 1.10) */}

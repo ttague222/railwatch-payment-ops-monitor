@@ -23,6 +23,13 @@ function windowUrgencyClass(w: CutOffWindow): string {
   return 'bg-green-50 text-green-800 border-green-200';
 }
 
+function windowUrgencyLabel(w: CutOffWindow): string {
+  if (w.status === 'closed' || w.secondsRemaining === null) return '';
+  if (w.secondsRemaining < 1800) return 'Critical';
+  if (w.secondsRemaining < 7200) return 'Warning';
+  return '';
+}
+
 const AchSameDayWindowStrip = memo(function AchSameDayWindowStrip({ windows, now }: Props) {
   const allClosed = windows.every(w => w.status === 'closed');
 
@@ -55,6 +62,9 @@ const AchSameDayWindowStrip = memo(function AchSameDayWindowStrip({ windows, now
                   ? formatCountdown(w.secondsRemaining)
                   : 'Closed'}
             </div>
+            {windowUrgencyLabel(w) && (
+              <div className="text-[10px] mt-0.5 font-semibold">{windowUrgencyLabel(w)}</div>
+            )}
             {isNext && (
               <div className="text-[10px] mt-0.5 font-medium text-blue-600">Next</div>
             )}

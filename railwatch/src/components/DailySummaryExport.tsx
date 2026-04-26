@@ -4,6 +4,7 @@ import { readFredCache } from '../api/fred';
 import { readMarketauxCache } from '../api/marketaux';
 import { fxSessionCache } from '../api/frankfurter';
 import type { ExceptionGroup, PaymentRail } from '../types';
+import { formatUSD, formatPercent, formatLocalTimestamp } from '../utils/format';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -13,19 +14,6 @@ const DISCLAIMER =
 const COPY_CONFIRM_MS = 3000;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatUSD(n: number): string {
-  return n.toLocaleString('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-}
-
-function formatPct(n: number): string {
-  return n.toFixed(2) + '%';
-}
 
 /** SLA breach threshold in milliseconds per rail. */
 function getSlaBreachMs(rail: PaymentRail): number {
@@ -86,7 +74,7 @@ const DailySummaryExport = memo(function DailySummaryExport({ generatedAt }: Dai
 
     // Date / time header
     lines.push(`RailWatch Daily Summary — ${now.toLocaleString()}`);
-    lines.push(`Simulation generated at: ${generatedAt.toLocaleString()}`);
+    lines.push(`Simulation generated at: ${formatLocalTimestamp(generatedAt.toISOString())}`);
     lines.push('');
 
     // ── Rail Health ──────────────────────────────────────────────────────────
@@ -96,7 +84,7 @@ const DailySummaryExport = memo(function DailySummaryExport({ generatedAt }: Dai
       lines.push(
         `  ${r.rail.replace(/_/g, ' ')}: ${r.status}` +
           `  |  Volume: ${r.todayVolume.toLocaleString()}` +
-          `  |  Failure Rate: ${formatPct(r.failureRate * 100)}`,
+          `  |  Failure Rate: ${formatPercent(r.failureRate * 100)}`,
       );
     }
     lines.push('');
@@ -142,7 +130,7 @@ const DailySummaryExport = memo(function DailySummaryExport({ generatedAt }: Dai
     if (!hasObligation) {
       lines.push('  Funding Coverage Ratio:    Data unavailable');
     } else {
-      lines.push(`  Funding Coverage Ratio:    ${formatPct(displayRatio)}`);
+      lines.push(`  Funding Coverage Ratio:    ${formatPercent(displayRatio)}`);
 
       // Active liquidity alerts
       if (displayRatio < 100) {

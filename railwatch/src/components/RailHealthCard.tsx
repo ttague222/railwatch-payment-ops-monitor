@@ -1,6 +1,7 @@
 import { memo, useMemo } from 'react';
 import type { RailData, RailHealthStatus } from '../types';
 import { useMarketauxArticles } from '../context/MarketauxContext';
+import { formatPercent } from '../utils/format';
 
 interface Props {
   data: RailData;
@@ -17,7 +18,7 @@ function fmt(n: number) {
 }
 
 function pct(n: number) {
-  return (n * 100).toFixed(2) + '%';
+  return formatPercent(n * 100);
 }
 
 const RailHealthCard = memo(function RailHealthCard({ data }: Props) {

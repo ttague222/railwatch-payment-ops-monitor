@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import type { ExceptionGroup, PaymentRail } from '../types';
 import ExceptionDrillDown from './ExceptionDrillDown';
+import { formatUSD } from '../utils/format';
 
 interface ExceptionGroupRowProps {
   group: ExceptionGroup;
@@ -9,15 +10,6 @@ interface ExceptionGroupRowProps {
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
-
-function formatUSD(n: number): string {
-  return n.toLocaleString('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-}
 
 function ageHours(openedAt: string): number {
   return (Date.now() - new Date(openedAt).getTime()) / (1000 * 60 * 60);

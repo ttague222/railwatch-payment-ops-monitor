@@ -2,6 +2,7 @@ import { memo, useState, useMemo } from 'react';
 import type { PaymentRail, ExceptionGroup } from '../types';
 import { useDataProvider } from '../context/DataProviderContext';
 import ExceptionGroupRow from './ExceptionGroupRow';
+import { formatUSD } from '../utils/format';
 
 // ─── SLA helpers ─────────────────────────────────────────────────────────────
 
@@ -15,17 +16,6 @@ function secondsToBreach(rail: PaymentRail, openedAt: string): number {
   const breachMs = BREACH_HOURS[rail] * 60 * 60 * 1000;
   const openedMs = new Date(openedAt).getTime();
   return (openedMs + breachMs - Date.now()) / 1000;
-}
-
-// ─── Dollar formatter ─────────────────────────────────────────────────────────
-
-function formatUSD(n: number): string {
-  return n.toLocaleString('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
 }
 
 // ─── Sort logic ───────────────────────────────────────────────────────────────

@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import type { ExceptionGroup, Transaction, PaymentRail } from '../types';
 import FxConversionInline from './FxConversionInline';
+import { formatUSD } from '../utils/format';
 
 // ─── Prop Types ───────────────────────────────────────────────────────────────
 
@@ -33,15 +34,6 @@ const SLA_THRESHOLDS: Record<PaymentRail, { warningHours: number; breachHours: n
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
-
-function formatUSD(amount: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
-}
 
 function formatAge(openedAt: string): string {
   const ageMs = Date.now() - new Date(openedAt).getTime();
