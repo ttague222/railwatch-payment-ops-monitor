@@ -9,6 +9,6 @@ test('dashboard loads with demo mode banner and rail health overview', async ({ 
   // Rail Health Overview section heading is present
   await expect(page.getByText('RAIL HEALTH OVERVIEW')).toBeVisible();
 
-  // At least one rail card is rendered (ACH Standard is always first)
-  await expect(page.getByText('ACH Standard')).toBeVisible();
+  // ACH Standard rail card heading — use heading role to match exactly one element
+  await expect(page.getByRole('heading', { name: 'ACH Standard' })).toBeVisible();
 });
