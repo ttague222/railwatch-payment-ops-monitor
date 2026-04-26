@@ -37,12 +37,12 @@ Implement the RailWatch single-page React/TypeScript application in dependency o
   - Implement `isBusinessDay(date: Date): boolean` — returns false for Saturday, Sunday, and dates in `FEDERAL_HOLIDAYS`
   - _Requirements: Req 1.4, Req 15.12, Req 15.13, Req 17.7_
 
-- [ ] 4. SimulatorSeedConfig and DEFAULT_SEED_CONFIG
+- [x] 4. SimulatorSeedConfig and DEFAULT_SEED_CONFIG
   - Create `src/simulator/config.ts` exporting `DEFAULT_SEED_CONFIG: SimulatorSeedConfig` with all six rail volume ranges and failure rate ranges from design.md Section 2
   - Export `SimulatorSeedConfig` re-export for convenience
   - _Requirements: Req 15.1–15.8_
 
-- [ ] 5. [RISK] Seeded PRNG utility (mulberry32) — required before 7-day history generation
+- [x] 5. [RISK] Seeded PRNG utility (mulberry32) — required before 7-day history generation
   - Create `src/simulator/prng.ts`
   - Implement `seededRandom(seed: number): () => number` using the mulberry32 algorithm from design.md Section 5.4
   - Implement `dateStringToSeed(dateStr: string): number` — converts ISO date string to a numeric seed
