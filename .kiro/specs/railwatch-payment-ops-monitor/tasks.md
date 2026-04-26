@@ -149,14 +149,14 @@ Implement the RailWatch single-page React/TypeScript application in dependency o
   - Apply `React.memo` to `ExceptionGroupRow`
   - _Requirements: Req 6.1–6.21, Req 16.2_
 
-- [ ] 17. [RISK] Resolve FxConversionInline state scope — fxLastFetch and retryFx at ExceptionDrillDown level
+- [x] 17. [RISK] Resolve FxConversionInline state scope — fxLastFetch and retryFx at ExceptionDrillDown level
   - In `src/components/ExceptionDrillDown.tsx`, define `fxLastFetch: Record<string, number>` and `retryFx: Record<string, () => void>` as component-level state (not module-level)
   - These are passed as props to `FxConversionInline` and `ApiErrorBoundary` — not stored in a separate context or module singleton
   - Document this decision with an inline comment: "FX fetch state is scoped to ExceptionDrillDown to avoid stale closures across multiple drill-down instances"
   - This structural decision must be made before implementing `ExceptionDrillDown` (task 18) and `FxConversionInline` (task 24)
   - _Requirements: Req 4, Req 9_
 
-- [ ] 18. ExceptionDrillDown component
+- [x] 18. ExceptionDrillDown component
   - Complete `src/components/ExceptionDrillDown.tsx` (scaffolded in task 17)
   - Renders inline transaction list for an expanded exception group
   - Displays per transaction: `transactionId`, `amount` (USD, formatted), age since `openedAt`, SLA status indicator (color + label), `reasonCode`, `reasonCodeNamespace`

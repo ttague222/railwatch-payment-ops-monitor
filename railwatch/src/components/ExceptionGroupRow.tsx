@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import type { ExceptionGroup, PaymentRail } from '../types';
+import ExceptionDrillDown from './ExceptionDrillDown';
 
 interface ExceptionGroupRowProps {
   group: ExceptionGroup;
@@ -130,11 +131,7 @@ const ExceptionGroupRow = memo(function ExceptionGroupRow({
       </div>
 
       {/* Drill-down area */}
-      {isExpanded && (
-        <div className="border-t border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-500">
-          Drill-down coming in task 18
-        </div>
-      )}
+      {isExpanded && <ExceptionDrillDown group={group} />}
     </div>
   );
 });
