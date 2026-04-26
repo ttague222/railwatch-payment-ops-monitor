@@ -124,6 +124,8 @@ export interface SimulatorOutput {
   settlementPosition: SettlementPosition;
   historicalVolumes: HistoricalVolumeEntry[];
   priorDayClosingExceptions: Record<PaymentRail, number>;
+  generatedAt: string;   // ISO 8601 timestamp
+  isBusinessDay: boolean;
 }
 
 // ─── DataProvider Interface ───────────────────────────────────────────────────

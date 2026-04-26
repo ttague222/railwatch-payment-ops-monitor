@@ -50,7 +50,7 @@ Implement the RailWatch single-page React/TypeScript application in dependency o
   - This module must be complete before task 6 (simulation engine) is started
   - _Requirements: Req 15.12_
 
-- [ ] 6. Simulation engine — generate() function
+- [x] 6. Simulation engine — generate() function
   - Create `src/simulator/engine.ts`
   - Implement correlated settlement sampling per design.md Section 5.3: sample target ratio from [85%, 140%] first, then derive `settlementBalance` and `projectedDailyObligation`
   - Implement `generateHistoricalVolumes()` using `seededRandom` from task 5 — 7 days of `HistoricalVolumeEntry` with `isBusinessDay` flags and `closingExceptionCounts`
