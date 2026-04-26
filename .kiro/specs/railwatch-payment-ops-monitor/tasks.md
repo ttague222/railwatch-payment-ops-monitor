@@ -14,6 +14,15 @@ Implement the RailWatch single-page React/TypeScript application in dependency o
   - Verify dev server starts and renders default Vite page
   - _Requirements: Req 1, Req 14_
 
+- [ ] 1a. Configure Vitest as the test runner
+  - Install `vitest`, `@testing-library/react`, `@testing-library/jest-dom`, `@vitest/ui`, `jsdom`
+  - Add `test` config block to `vite.config.ts`: `environment: 'jsdom'`, `globals: true`, `setupFiles: ['./src/test/setup.ts']`
+  - Create `src/test/setup.ts` importing `@testing-library/jest-dom`
+  - Add `"test": "vitest --run"` and `"test:ui": "vitest --ui"` scripts to `package.json`
+  - Verify test runner works by writing and passing a trivial smoke test
+  - This task must be complete before tasks 29 and 33 reference "all tests pass"
+  - _Requirements: Req 1, Req 14_
+
 - [ ] 2. Core TypeScript type definitions
   - Create `src/types/index.ts` with all type aliases and interfaces from design.md Section 2
   - Include: `PaymentRail`, `RailHealthStatus`, `ReasonCodeNamespace`, `TransactionStatus`, `AlertSeverity`
@@ -217,14 +226,20 @@ Implement the RailWatch single-page React/TypeScript application in dependency o
   - Wire into `ExceptionDrillDown` (task 18) for `Wire_International` transactions
   - _Requirements: Req 9.1–9.8, Req 18.14_
 
+- [ ] 25a. [RISK] Create MarketauxContext — required before MarketauxNewsFeed writes to it
+  - Create `src/context/MarketauxContext.tsx` following the same pattern as CutOffContext (task 9)
+  - Export `MarketauxContextProvider` component wrapping children with `useState<NewsArticle[]>([])`
+  - Export `useMarketauxArticles(): NewsArticle[]` consumer hook
+  - Export `useSetMarketauxArticles(): (articles: NewsArticle[]) => void` writer hook
+  - This context must exist before task 25 (MarketauxNewsFeed writes to it) and task 15 (RailHealthCard reads from it)
+  - _Requirements: Req 10.10, Req 5.11_
+
 - [ ] 25. MarketauxNewsFeed component — fetch, monthly counter, conditional rail surfacing
   - Create `src/api/marketaux.ts` — implements `getMarketauxCounterKey()`, `readMarketauxCount()`, `incrementMarketauxCount()`, `readMarketauxCache()`, `writeMarketauxCache()`, `mapMarketauxArticle()`, `fetchMarketauxNews()` with 5s `AbortController` timeout
-  - Create `src/context/MarketauxContext.tsx` — context storing `articles: NewsArticle[]`; implement `useMarketauxArticles()` hook
   - Create `src/components/MarketauxNewsFeed.tsx`
-  - On mount: check monthly counter; if ≥ 90 skip fetch and show "Live news paused — monthly limit reached"; else check 30-min cache; fetch if stale
   - State: `articles`, `fetchState`, `errorType`, `rateLimitReached`
   - Displays 3–5 articles with headline, source, publication timestamp (user local timezone), sentiment label (Positive/Neutral/Negative per ±0.15 thresholds)
-  - Writes article list to `MarketauxContext` so `RailHealthCard` can access it
+  - Writes article list to `MarketauxContext` via `useSetMarketauxArticles()` so `RailHealthCard` can access it
   - Displays current request count and monthly limit (90)
   - Wire `useMarketauxArticles()` into `RailHealthCard` (task 15) to complete conditional headline surfacing
   - _Requirements: Req 10.1–10.13, Req 18.8_
