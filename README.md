@@ -65,20 +65,32 @@ All payment data is realistically simulated for a fictional $3B credit union (La
 ```bash
 # 1. Clone the repo
 git clone https://github.com/ttague222/railwatch-payment-ops-monitor.git
-cd railwatch-payment-ops-monitor/railwatch
 
-# 2. Install dependencies
+# 2. Navigate into the repo
+cd railwatch-payment-ops-monitor
+
+# 3. Navigate into the app directory
+cd railwatch
+
+# 4. Install dependencies
 npm install
 
-# 3. Set up environment variables
-cp .env.example .env.local
-# Edit .env.local and add your API keys (see below)
+# 5. (Optional) Set up API keys for live market data
+# The app runs fully in demo mode without any keys.
+# To enable the live Fed rate, FX rates, and news feed, create a .env file:
+#
+#   Mac/Linux:  cp .env.example .env.local
+#   Windows:    copy .env.example .env.local
+#
+# Then edit .env.local and add your keys (see API Keys section below).
+# If you skip this step, the Market Context Panel will show error states
+# but all payment operations data will still work.
 
-# 4. Start the dev server
+# 6. Start the dev server
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173).
+Open **http://localhost:5173** in your browser. You should see the dark navy header with "RAILWATCH" and a "DEMO MODE — Simulated Data" banner.
 
 ### API Keys
 
