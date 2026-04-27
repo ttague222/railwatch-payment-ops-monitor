@@ -58,7 +58,7 @@ All payment data is realistically simulated for a fictional $3B credit union (La
 | [Frankfurter](https://frankfurter.dev/) | On-demand FX rates for Wire International exceptions — shows USD → destination currency conversion inline in the exception drill-down. Fetched per currency pair on demand, cached for the session. | None required |
 | [Marketaux](https://www.marketaux.com/) | Payments industry news filtered by FedNow, RTP, ACH, and instant payments keywords, with sentiment scoring. Relevant headlines surface directly on Degraded/Critical rail cards. | Free API key |
 
-**CORS note:** FRED and Marketaux do not allow direct browser requests. In demo mode, requests are proxied through [corsproxy.io](https://corsproxy.io). In production, these calls would be made server-side with API keys stored securely in the backend. If corsproxy.io is unavailable, the Fed rate and news feed sections will show error states — this is a known demo-mode limitation and does not affect any of the payment operations data.
+**CORS note:** FRED and Marketaux do not allow direct browser requests. API calls are proxied server-side via Vercel serverless functions in the `api/` directory — no third-party proxy service is used. In a production implementation these would move to a dedicated backend with persistent caching and server-side key storage.
 
 ---
 
@@ -68,10 +68,10 @@ All payment data is realistically simulated for a fictional $3B credit union (La
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/ttague222/RailWatch-Payment-Operations-Monitor.git
+git clone https://github.com/ttague222/Railwatch-Payment-Ops-Monitor.git
 
 # 2. Navigate into the repo
-cd railwatch-payment-ops-monitor
+cd Railwatch-Payment-Ops-Monitor
 
 # 3. Navigate into the app directory
 cd railwatch
@@ -103,7 +103,7 @@ The app runs in demo mode without any API keys — all payment data is simulated
 | Variable | Where to get it |
 |----------|----------------|
 | `VITE_FRED_API_KEY` | [fred.stlouisfed.org/docs/api/api_key.html](https://fred.stlouisfed.org/docs/api/api_key.html) — free, instant approval |
-| `VITE_MARKETAUX_API_TOKEN` | [app.marketaux.com/register](https://app.marketaux.com/register) — free tier, 100 req/month |
+| `VITE_MARKETAUX_API_TOKEN` | [app.marketaux.com/register](https://app.marketaux.com/register) — free tier, 100 req/day |
 
 Frankfurter requires no key.
 
@@ -113,13 +113,13 @@ Frankfurter requires no key.
 npm test
 ```
 
-84 tests across smoke tests, edge case verification (all 18 Req 18 scenarios), and Marketaux integration verification.
+87 tests across smoke tests, edge case verification (all 18 Req 18 scenarios), and Marketaux integration verification.
 
 ---
 
 ## Architecture
 
-Built with React 19 + TypeScript + Vite + Tailwind CSS v4 + Recharts. Runs entirely client-side — no backend, no build server.
+Built with React 19 + TypeScript + Vite + Tailwind CSS v4 + Recharts. The frontend runs entirely client-side. API calls to FRED, Marketaux, and Frankfurter are proxied through Vercel serverless functions in the `api/` directory, keeping API keys server-side and bypassing CORS restrictions.
 
 **Key pattern — DataProvider interface:** All dashboard components consume payment data through a `DataProvider` interface. The `SimulatorDataProvider` implements it in demo mode. In production, a `NymbusConnectDataProvider` would implement the same interface against the Nymbus Connect API — zero changes to any consuming component. The transaction schema mirrors Nymbus Connect conventions by design.
 
@@ -155,20 +155,25 @@ The original concept included a payment modernization readiness tracker. It was 
 
 **Historical trend analysis** — 7-day rolling averages are currently simulated. A production version would store and surface 30/60/90-day trend data for seasonal pattern identification and peer benchmarking.
 
-**Remove the CORS proxy** — Move FRED and Marketaux calls to a lightweight backend (Next.js API routes or a simple Express server). API keys stay server-side, caching becomes persistent across sessions, and rate limit tracking is reliable.
+**Remove the CORS proxy** — Already done for the Vercel deployment via serverless functions. A production version would move these to a dedicated backend with persistent caching, server-side key storage, and reliable rate limit tracking across sessions.
 
 ---
 
 ## Repo Structure
 
 ```
+.github/
+  workflows/
+    ci.yml              # GitHub Actions CI — build, unit tests, Playwright E2E
 .kiro/
   specs/railwatch-payment-ops-monitor/
     requirements.md     # 18 requirements across 6 review rounds
     design.md           # 8-section technical design
     tasks.md            # 35 implementation tasks
+api/                    # Vercel serverless functions — proxy FRED, Marketaux, Frankfurter
 ai-collaboration-context.md   # Full decision log and iteration history
 railwatch/
+  e2e/                  # Playwright E2E smoke test
   src/
     api/                # FRED, Frankfurter, Marketaux integrations
     components/         # All dashboard components
