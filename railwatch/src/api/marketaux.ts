@@ -4,7 +4,7 @@ import type { NewsArticle, MarketauxCache, ApiErrorType } from '../types/index';
 
 export const MARKETAUX_CACHE_KEY = 'railwatch_marketaux_news';
 export const MARKETAUX_CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
-export const MARKETAUX_MONTHLY_LIMIT = 90;             // conservative cap below 100/month free tier
+export const MARKETAUX_MONTHLY_LIMIT = 90;             // free tier: 100 req/day (counter resets monthly in localStorage)
 const MARKETAUX_FETCH_TIMEOUT_MS = 5000;
 
 const MARKETAUX_API_TOKEN = import.meta.env.VITE_MARKETAUX_API_TOKEN || '';

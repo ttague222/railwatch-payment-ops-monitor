@@ -1,6 +1,10 @@
 # MCP settings contain API keys — do not commit
 .kiro/settings/
 
+# Playwright test output
+railwatch/test-results/
+railwatch/playwright-report/
+
 # Node modules (for when we add the app)
 node_modules/
 
