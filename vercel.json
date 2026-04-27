@@ -3,21 +3,6 @@
   "outputDirectory": "railwatch/dist",
   "installCommand": "echo 'install handled in buildCommand'",
   "rewrites": [
-    {
-      "source": "/api/fred/:path*",
-      "destination": "https://api.stlouisfed.org/fred/:path*"
-    },
-    {
-      "source": "/api/marketaux/:path*",
-      "destination": "https://api.marketaux.com/:path*"
-    },
-    {
-      "source": "/api/frankfurter/:path*",
-      "destination": "https://api.frankfurter.dev/:path*"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
