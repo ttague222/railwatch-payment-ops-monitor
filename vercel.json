@@ -13,6 +13,10 @@
       "dest": "https://api.marketaux.com/$1"
     },
     {
+      "src": "/api/frankfurter/(.*)",
+      "dest": "https://api.frankfurter.dev/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "/$1"
     }

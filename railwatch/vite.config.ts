@@ -31,6 +31,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/marketaux/, ''),
       },
+      '/api/frankfurter': {
+        target: 'https://api.frankfurter.dev',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/frankfurter/, ''),
+      },
     },
   },
 

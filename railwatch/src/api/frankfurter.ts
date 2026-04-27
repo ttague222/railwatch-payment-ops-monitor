@@ -82,7 +82,7 @@ export async function fetchFxRate(toCurrency: string): Promise<FxRate | null> {
     let response: Response;
     try {
       response = await fetch(
-        `https://api.frankfurter.app/latest?from=USD&to=${encodeURIComponent(toCurrency)}`,
+        `/api/frankfurter/latest?from=USD&to=${encodeURIComponent(toCurrency)}`,
         { signal: controller.signal },
       );
     } catch (err) {
