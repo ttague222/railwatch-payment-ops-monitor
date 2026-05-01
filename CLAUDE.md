@@ -1,10 +1,8 @@
 # Railwatch — Payment Operations Monitor
 
-Technical assessment built for the AI-First Product Owner role at Nymbus. A real-time payment ops dashboard for community banks and credit unions. **Live demo** at https://railwatch-payment-ops-monitor.vercel.app.
+A self-directed fintech portfolio project — real-time payment operations dashboard for community banks and credit unions. **Live demo** at https://railwatch-payment-ops-monitor.vercel.app.
 
 - **GitHub:** https://github.com/ttague222/Railwatch-Payment-Ops-Monitor
-- **Assessment doc:** `AI-First Product Owner - Take Home Assessment.md`
-- **Decision log:** `ai-collaboration-context.md`
 
 ## Structure
 
@@ -32,7 +30,7 @@ Railwatch/
 - **Testing:** Vitest, Testing Library, Playwright (E2E)
 
 ## Key Architecture Pattern
-All dashboard components consume payment data through a `DataProvider` interface. `SimulatorDataProvider` powers demo mode. In production, a `NymbusConnectDataProvider` would implement the same interface — zero changes to consuming components.
+All dashboard components consume payment data through a `DataProvider` interface. `SimulatorDataProvider` powers demo mode. In production, a `CoreBankingDataProvider` would implement the same interface — zero changes to consuming components.
 
 ## Running Locally
 

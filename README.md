@@ -4,7 +4,7 @@
 
 **Live demo:** https://railwatch-payment-ops-monitor.vercel.app
 
-A real-time payment operations dashboard for community banks and credit unions. Built as a take-home assessment for the AI-First Product Owner role at Nymbus.
+A self-directed fintech build — a real-time payment operations dashboard for community banks and credit unions. Demonstrates payment rail domain knowledge, AI-first development workflow (spec-driven with Kiro), and a clean DataProvider architecture ready for live core banking integration.
 
 ---
 
@@ -46,7 +46,7 @@ RailWatch provides a unified morning ops view across six payment rails: ACH Stan
 
 All payment data is realistically simulated for a fictional $3B credit union (Lakeside Community Credit Union) using Federal Reserve published payment volume benchmarks. A persistent banner identifies the demo state. Live market context (Fed rate, FX, news) is fetched from real public APIs.
 
-> ⚠️ **Production Deployment Notice:** RailWatch Demo operates without authentication or authorization controls. It **MUST NOT** be connected to real member financial data or deployed in a production environment without implementing role-based access controls, audit logging, and appropriate security hardening per NCUA and applicable regulatory requirements. In a production environment, the Simulator module would be replaced by a DataProvider client connected to the Nymbus Connect API — no changes to any consuming dashboard component would be required.
+> ⚠️ **Production Deployment Notice:** RailWatch Demo operates without authentication or authorization controls. It **MUST NOT** be connected to real member financial data or deployed in a production environment without implementing role-based access controls, audit logging, and appropriate security hardening per NCUA and applicable regulatory requirements. In a production environment, the Simulator module would be replaced by a DataProvider client connected to a core banking platform API — no changes to any consuming dashboard component would be required.
 
 ---
 
@@ -121,7 +121,7 @@ npm test
 
 Built with React 19 + TypeScript + Vite + Tailwind CSS v4 + Recharts. The frontend runs entirely client-side. API calls to FRED, Marketaux, and Frankfurter are proxied through Vercel serverless functions in the `api/` directory, keeping API keys server-side and bypassing CORS restrictions.
 
-**Key pattern — DataProvider interface:** All dashboard components consume payment data through a `DataProvider` interface. The `SimulatorDataProvider` implements it in demo mode. In production, a `NymbusConnectDataProvider` would implement the same interface against the Nymbus Connect API — zero changes to any consuming component. The transaction schema mirrors Nymbus Connect conventions by design.
+**Key pattern — DataProvider interface:** All dashboard components consume payment data through a `DataProvider` interface. The `SimulatorDataProvider` implements it in demo mode. In production, a `CoreBankingDataProvider` would implement the same interface against a live core banking API — zero changes to any consuming component.
 
 **State management:** React context for cross-component concerns (cut-off countdown, Marketaux articles). LocalStorage for API response caching and user preferences. No external state library.
 
@@ -135,7 +135,7 @@ Built with React 19 + TypeScript + Vite + Tailwind CSS v4 + Recharts. The fronte
 The first concept (PayPath — an instant payments readiness tracker) was cut after one question: "Would a VP of Payments open this every day?" A readiness assessment has no recurring value — you fill it out once and you're done. A daily ops monitor is opened every morning. Retention value beats acquisition value.
 
 **Why simulate data instead of connecting to a real core?**
-The goal was to demonstrate what the product *would* show with a live Nymbus Connect integration, not to build the integration itself. The DataProvider pattern makes the swap straightforward. Simulating data also means the demo works for anyone without needing access to a real institution's systems.
+The goal was to demonstrate what the product *would* show with a live core banking integration, not to build the integration itself. The DataProvider pattern makes the swap straightforward. Simulating data also means the demo works for anyone without needing access to a real institution's systems.
 
 **Why three APIs instead of the required two?**
 FRED adds operational meaning (settlement cost context), Frankfurter adds transaction-level detail (FX exposure on Wire International), and Marketaux adds situational awareness (industry news). Each serves a distinct user need. Using three shows initiative without overcomplicating the build.
@@ -147,11 +147,11 @@ The original concept included a payment modernization readiness tracker. It was 
 
 ## What I'd Change or Add With More Time
 
-**Live core connection** — Replace the Simulator with a read-only Nymbus Connect API client. The DataProvider interface and transaction schema are already structured for this swap.
+**Live core connection** — Replace the Simulator with a read-only core banking API client. The DataProvider interface is already structured for this swap.
 
 **Proactive alerting** — The dashboard requires the ops manager to open it to see problems. Phase 2 adds push notifications: email or SMS when an exception breaches SLA, when coverage ratio drops below a threshold, or when a rail goes Critical.
 
-**Multi-institution support** — Nymbus serves hundreds of community banks. A multi-tenant version would let a Nymbus client services team monitor payment health across their entire customer portfolio — turning a single-institution tool into a platform.
+**Multi-institution support** — A multi-tenant version would let a fintech platform or core banking provider monitor payment health across their entire customer portfolio — turning a single-institution tool into a platform play.
 
 **Historical trend analysis** — 7-day rolling averages are currently simulated. A production version would store and surface 30/60/90-day trend data for seasonal pattern identification and peer benchmarking.
 
@@ -171,7 +171,6 @@ The original concept included a payment modernization readiness tracker. It was 
     design.md           # 8-section technical design
     tasks.md            # 35 implementation tasks
 api/                    # Vercel serverless functions — proxy FRED, Marketaux, Frankfurter
-ai-collaboration-context.md   # Full decision log and iteration history
 railwatch/
   e2e/                  # Playwright E2E smoke test
   src/
